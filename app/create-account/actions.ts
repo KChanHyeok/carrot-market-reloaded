@@ -4,7 +4,7 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import getSession from "@/lib/session";
+import { saveSession } from "@/lib/session";
 
 const checkUsername = (username: string) => {
   return !username.includes("potato");
@@ -98,10 +98,7 @@ export async function createAccount(prevState: any, formData: FormData) {
         id: true,
       },
     });
-    const session = await getSession();
-    //@ts-ignore
-    session.id = user.id;
-    await session.save();
+    saveSession(user.id);
     redirect("/profile");
     // log the user in
     // redirect "/home"

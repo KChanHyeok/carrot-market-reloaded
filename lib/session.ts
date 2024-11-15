@@ -5,9 +5,15 @@ interface Cookie {
   id?: number;
 }
 
-export default function getSession() {
+export function getSession() {
   return getIronSession<Cookie>(cookies(), {
     cookieName: "delicious-karrot",
     password: process.env.COOKIE_PASSWORD!,
   });
+}
+
+export async function saveSession(id: number) {
+  const session = await getSession();
+  session.id = id;
+  await session.save();
 }

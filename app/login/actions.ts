@@ -4,7 +4,7 @@ import { PASSWORD_MIN_LENGTH, PASSWORD_REGEX_ERROR, PASSWORD_REGEXP } from "@/li
 import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import getSession from "@/lib/session";
+import { saveSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
 const checkEmailExists = async (email: string) => {
@@ -50,9 +50,7 @@ export async function login(prevState: any, formData: FormData) {
     });
     const ok = await bcrypt.compare(result.data.password, user?.password ?? "");
     if (ok) {
-      const session = await getSession();
-      session.id = user!.id;
-      await session.save();
+      await saveSession(user!.id);
       redirect("/profile");
     } else {
       return {
@@ -62,7 +60,6 @@ export async function login(prevState: any, formData: FormData) {
         },
       };
     }
-    console.log(ok);
     // log the user in
     // redirect "/profile"
   }
