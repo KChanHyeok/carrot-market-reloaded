@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
+    "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^5.21.1",
     "@tailwindcss/forms": "^0.5.9",
     "@types/bcrypt": "^5.0.2",
@@ -17,11 +18,13 @@
     "@vonage/auth": "^1.12.0",
     "@vonage/server-sdk": "^3.19.2",
     "bcrypt": "^5.1.1",
+    "heroicons": "^2.1.5",
     "iron-session": "^8.0.3",
     "next": "14.2.15",
     "prisma": "^5.21.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.53.2",
     "twilio": "^5.3.5",
     "validator": "^13.12.0",
     "zod": "^3.23.8"
