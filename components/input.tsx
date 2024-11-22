@@ -2,7 +2,7 @@ import { ForwardedRef, forwardRef, InputHTMLAttributes } from "react";
 
 interface inputProps {
   errors?: string[];
-  name: string;
+  name?: string;
 }
 
 const _input = (

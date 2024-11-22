@@ -1,11 +1,10 @@
 "use server";
 
-import { z } from "zod";
-import fs from "fs/promises";
 import db from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { productSchema } from "./schema";
+import { revalidateTag } from "next/cache";
 
 export async function uploadProduct(formData: FormData) {
   const data = {
@@ -48,6 +47,37 @@ export async function uploadProduct(formData: FormData) {
     }
   }
   // const result = productSchema.parse(data);
+}
+
+export async function updateProduct(formData: FormData) {
+  const data = {
+    id: formData.get("id"),
+    photo: formData.get("photo"),
+    title: formData.get("title"),
+    price: formData.get("price"),
+    description: formData.get("description"),
+  };
+  const result = productSchema.safeParse(data);
+  if (!result.success) {
+    return result.error.flatten();
+  } else {
+    const session = await getSession();
+    if (session.id) {
+      const product = await db.product.update({
+        where: {
+          id: Number(data.id),
+        },
+        data: {
+          title: result.data.title,
+          description: result.data.description,
+          price: Number(result.data.price),
+          photo: result.data.photo,
+        },
+      });
+      revalidateTag("product-detail");
+      redirect(`/products/${product.id}`);
+    }
+  }
 }
 
 export async function getUploadUrl() {

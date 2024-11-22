@@ -1,4 +1,3 @@
-import ListProduct from "@/components/list-prodict";
 import ProductList from "@/components/product-list";
 import db from "@/lib/db";
 import { PlusIcon } from "@heroicons/react/24/solid";
@@ -7,7 +6,7 @@ import { unstable_cache as nextCashe } from "next/cache";
 import Link from "next/link";
 
 const getCachedProducts = nextCashe(getInitialProducts, ["home-products"], {
-  revalidate: 60,
+  tags: ["product-list"],
 });
 
 async function getInitialProducts() {
@@ -28,12 +27,18 @@ async function getInitialProducts() {
 
 export type initialProducts = Prisma.PromiseReturnType<typeof getInitialProducts>;
 
+// auto default
+//  const dynamic = "force-dynamic"; static => dynamic change
+// export const dynamic = "force-dynamic";
+// export const revalidate = 60;
+
 export const metadata = {
   title: "Home",
 };
 
 export default async function Products() {
   const initialProducts = await getCachedProducts();
+
   return (
     <div>
       <ProductList initialProducts={initialProducts} />

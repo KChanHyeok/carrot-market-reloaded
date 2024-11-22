@@ -3,16 +3,21 @@
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import Input from "../../../components/input";
 import Button from "@/components/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { set } from "zod";
-import { getUploadUrl, uploadProduct } from "./action";
+import { getUploadUrl, updateProduct, uploadProduct } from "./action";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductType } from "./schema";
 import { error } from "console";
+import { initialProductDetail } from "../[id]/edit/page";
 
-export default function Addproduct() {
+interface ProductDetailProps {
+  initialProductDetail: initialProductDetail;
+}
+
+export default function Addproduct({ initialProductDetail }: ProductDetailProps) {
   const [preview, setPreview] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
   const [photoId, setImageid] = useState("");
@@ -25,6 +30,16 @@ export default function Addproduct() {
   } = useForm<ProductType>({
     resolver: zodResolver(productSchema),
   });
+
+  useEffect(() => {
+    if (initialProductDetail) {
+      setPreview(initialProductDetail.photo + "/public");
+      setValue("title", initialProductDetail.title);
+      setValue("price", initialProductDetail.price);
+      setValue("description", initialProductDetail.description);
+      setValue("photo", initialProductDetail.photo);
+    }
+  }, [initialProductDetail, setValue]);
 
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -46,25 +61,30 @@ export default function Addproduct() {
     }
   };
   const onSubmit = handleSubmit(async (data: ProductType) => {
-    if (!file) {
-      return;
-    }
-    const cloudflareForm = new FormData();
-    cloudflareForm.append("file", file);
+    if (file) {
+      if (!initialProductDetail) {
+        return;
+      }
+      const cloudflareForm = new FormData();
+      cloudflareForm.append("file", file!);
 
-    const response = await fetch(uploadUrl, {
-      method: "POST",
-      body: cloudflareForm,
-    });
-    if (response.status !== 200) {
-      return;
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        body: cloudflareForm,
+      });
+      if (response.status !== 200) {
+        return;
+      }
     }
+
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("price", data.price + "");
     formData.append("description", data.description);
     formData.append("photo", data.photo);
-    return uploadProduct(formData);
+    if (!initialProductDetail) return uploadProduct(formData);
+    formData.append("id", initialProductDetail.id.toString());
+    return updateProduct(formData);
   });
 
   const onValid = async () => {
@@ -104,7 +124,7 @@ export default function Addproduct() {
           errors={[errors.description?.message ?? ""]}
           {...register("description")}
         />
-        <Button text="작성완료" />
+        <Button text={initialProductDetail ? "수정완료" : "작성완료"} />
       </form>
     </div>
   );
